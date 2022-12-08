@@ -4,8 +4,6 @@ def get_data():
     return lines
 
 
-
-
 def create_directory_tree(commands, starting_index=0):
     current_directory = {}
     i = starting_index
@@ -34,6 +32,7 @@ def create_directory_tree(commands, starting_index=0):
             i += 1
     return current_directory, i
 
+
 def list_directories(parent_directory, name='/'):
     directory_list = []
     sum = 0
@@ -61,6 +60,7 @@ def get_sum_of_values_under(list, value):
                 total += v
             dir_list.append(new_dir)
     return total, dir_list
+
 
 def smallest_dir_over_space_needed(dir_list, space_needed):
     dir_list.sort(key=lambda x: x['dir_val'])
