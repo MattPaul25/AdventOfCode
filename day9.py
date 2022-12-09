@@ -59,7 +59,7 @@ def get_data():
     return lines
 
 steps = [d.strip() for d in get_data()]
-rope = Rope(2)
+rope = Rope(10)
 for s in steps:
     direction, step_count = s.split(' ')
     rope.move_head(direction, step_count)
