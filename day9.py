@@ -6,25 +6,8 @@ class Location:
         self.y = y
         self.tracker = {f'{str(self.x)},{str(self.y)}'}
 
-    def move_left(self):
-        self.x = self.x - 1
-        self.tracker.add(f'{str(self.x)},{str(self.y)}')
-
-    def move_right(self):
-        self.x = self.x + 1
-        self.tracker.add(f'{str(self.x)},{str(self.y)}')
-
-    def move_up(self):
-        self.y = self.y + 1
-        self.tracker.add(f'{str(self.x)},{str(self.y)}')
-
-    def move_down(self):
-        self.y = self.y - 1
-        self.tracker.add(f'{str(self.x)},{str(self.y)}')
-
-    def set_location(self, x_move, y_move):
-        self.x += x_move
-        self.y += y_move
+    def move(self, move_lambda):
+        self.x, self.y = move_lambda(self.x, self.y)
         self.tracker.add(f'{str(self.x)},{str(self.y)}')
 
 
@@ -34,10 +17,10 @@ class Rope:
         self.knots = knots
         self.rope = self.build_rope()
         self.move_map = {
-            'L': self.rope[0].move_left,
-            'R': self.rope[0].move_right,
-            'U': self.rope[0].move_up,
-            'D': self.rope[0].move_down
+            'L': lambda x, y: (x - 1, y + 0),
+            'R': lambda x, y: (x + 1, y + 0),
+            'U': lambda x, y: (x + 0, y + 1),
+            'D': lambda x, y: (x + 0, y - 1)
         }
 
     def build_rope(self):
@@ -49,7 +32,7 @@ class Rope:
     def move_head(self, direction, steps):
         head_move = self.move_map[direction]
         for step in range(1, int(steps) + 1):
-            head_move()
+            self.rope[0].move(head_move)
             self.move_tail()
 
     def move_tail(self):
@@ -66,7 +49,7 @@ class Rope:
                 y_move = -1 if y_diff < 0 else 1
                 if abs(x_diff) > 0:
                     x_move = -1 if x_diff < 0 else 1
-            knot.set_location(x_move, y_move)
+            knot.move(lambda x, y: (x + x_move, y + y_move))
             previous_knot = knot
 
 
@@ -76,7 +59,7 @@ def get_data():
     return lines
 
 steps = [d.strip() for d in get_data()]
-rope = Rope(10)
+rope = Rope(2)
 for s in steps:
     direction, step_count = s.split(' ')
     rope.move_head(direction, step_count)
