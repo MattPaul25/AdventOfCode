@@ -27,6 +27,7 @@ class Location:
         self.y += y_move
         self.tracker.add(f'{str(self.x)},{str(self.y)}')
 
+
 class Rope:
 
     def __init__(self, knots):
@@ -41,10 +42,9 @@ class Rope:
 
     def build_rope(self):
         rope = []
-        for knot in range(0, self.knots+1):
+        for knot in range(0, self.knots):
             rope.append(Location(50, 50))
         return rope
-
 
     def move_head(self, direction, steps):
         head_move = self.move_map[direction]
@@ -76,7 +76,7 @@ def get_data():
     return lines
 
 steps = [d.strip() for d in get_data()]
-rope = Rope(9)
+rope = Rope(10)
 for s in steps:
     direction, step_count = s.split(' ')
     rope.move_head(direction, step_count)
