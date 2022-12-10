@@ -1,5 +1,6 @@
 
 
+
 class Location:
     def __init__(self, x, y):
         self.x = x
@@ -66,3 +67,9 @@ for s in steps:
 
 tail = rope.rope[len(rope.rope)-1]
 print(f'tail spots are {len(tail.tracker)}')
+
+
+
+
+
+
