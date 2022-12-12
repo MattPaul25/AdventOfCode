@@ -6,10 +6,11 @@ def get_data():
 
 class Monkey:
 
-    def __init__(self, name, items, operation, test, worry_reducer):
+    def __init__(self, name, items, operation, test, relationship, worry_reducer):
         self.name = name
         self.items = items
         self.operation = operation
+        self.relationship = relationship
         self.inspect_count = 0
         self.divide_test = test
         self.worry_reducer = worry_reducer
@@ -20,25 +21,29 @@ class Monkey:
         operation = self.operation[self.operation.find('= ')+2:]
         return lambda old: eval(operation)
 
-    def inspect(self, item):
-        worry_level = self.function(int(item))
-        worry_level = int(worry_level / 3) if self.worry_reducer else worry_level % self.super_mod
-        divisible = worry_level % self.divide_test == 0
-        self.inspect_count += 1
-        return divisible, worry_level
+    def inspect(self):
+        return_list = []
+        for idx, item in enumerate(self.items):
+            self.inspect_count += 1
+            print(f'Monkey {self.name} inspects item with worry level {item}')
+            worry_level = self.function(int(item))
+            worry_level = int(worry_level / 3) if self.worry_reducer else worry_level % self.super_mod
+            divisible = worry_level % self.divide_test == 0
+            return_list.append((divisible, worry_level))
+        self.items = [i for _, i in return_list]
+        return return_list
 
-    def throw(self, item, catch_monkey):
-        # print(f'Monkey {self.name} throws {item} to {catch_monkey.name}')
-        self.items.pop(0)
-        catch_monkey.catch(item)
+    def throw(self):
+        print(f'Monkey {self.name} throws {self.items[0]}')
+        return self.items.pop(0)
 
     def catch(self, item):
-        # print(f'Monkey {self.name} catches {item}')
+        print(f'Monkey {self.name} catches {item}')
         self.items.append(item)
 
 
 def make_monkeys(monkey_data, worry_reducer=True):
-    monkeys, relationships = [], {}
+    monkeys = []
     for idx, monkey_datum in enumerate(monkey_data):
         if 'Monkey' in monkey_datum:
             name = monkey_datum[monkey_datum.find(' ')+1:].strip(':')
@@ -47,25 +52,24 @@ def make_monkeys(monkey_data, worry_reducer=True):
             operation = monkey_data[idx + 2]
             test = monkey_data[idx + 3].split(' ')
             test = int(test[len(test)-1])
-            monkey = Monkey(name=name, items=clean_items, operation=operation, test=test, worry_reducer=worry_reducer)
-            monkeys.append(monkey)
             true_relationship, false_relationship = monkey_data[idx + 4], monkey_data[idx + 5]
             true_relationship = true_relationship[true_relationship.find('key ') + 4:]
             false_relationship = false_relationship[false_relationship.find('key ') + 4:]
-            relationships.update({name: {True: true_relationship, False: false_relationship}})
-    return monkeys, relationships
+            relationship = {True: true_relationship, False: false_relationship}
+            monkey = Monkey(name=name, items=clean_items, operation=operation, test=test, relationship=relationship, worry_reducer=worry_reducer)
+            monkeys.append(monkey)
+    return monkeys
 
 
-def monkey_business(monkeys, relationships, rounds):
+def monkey_business(monkeys, rounds):
     for i in range(0, rounds):
         print(f'Round {i + 1}')
         for monkey in monkeys:
-            while len(monkey.items) > 0:
-                divisible, item = monkey.inspect(monkey.items[0])
-                toss_to = relationships[monkey.name][divisible]
+            monkey_inspected_items = monkey.inspect()
+            for divisible, item in monkey_inspected_items:
+                toss_to = monkey.relationship[divisible]
                 catch_monkey = [m for m in monkeys if m.name == toss_to][0]
-                monkey.throw(item, catch_monkey)
-    return monkeys
+                catch_monkey.catch(monkey.throw())
 
 
 def apply_mod(monkeys):
@@ -77,16 +81,16 @@ def apply_mod(monkeys):
 
 # pt 1
 monkey_data = [d.strip() for d in get_data()]
-monkeys, relationships = make_monkeys(monkey_data, True)
-monkeys = monkey_business(monkeys, relationships, 20)
+monkeys = make_monkeys(monkey_data, True)
+monkey_business(monkeys, 20)
 monkeys.sort(key=lambda m: -m.inspect_count)
 total = monkeys[0].inspect_count * monkeys[1].inspect_count
 print(f'part1: {total}')
 
 # pt 2
-monkeys, relationships = make_monkeys(monkey_data, False)
+monkeys = make_monkeys(monkey_data, False)
 apply_mod(monkeys)
-monkeys = monkey_business(monkeys, relationships, 10000)
+monkey_business(monkeys, 10000)
 monkeys.sort(key=lambda m: -m.inspect_count)
 total = monkeys[0].inspect_count * monkeys[1].inspect_count
 print(f'part2: {total}')
