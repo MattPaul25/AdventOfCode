@@ -43,7 +43,7 @@ class Monkey:
 
 
 def make_monkeys(monkey_data, worry_reducer=True):
-    monkeys = []
+    monkeys = {}
     for idx, monkey_datum in enumerate(monkey_data):
         if 'Monkey' in monkey_datum:
             name = monkey_datum[monkey_datum.find(' ')+1:].strip(':')
@@ -57,40 +57,45 @@ def make_monkeys(monkey_data, worry_reducer=True):
             false_relationship = false_relationship[false_relationship.find('key ') + 4:]
             relationship = {True: true_relationship, False: false_relationship}
             monkey = Monkey(name=name, items=clean_items, operation=operation, test=test, relationship=relationship, worry_reducer=worry_reducer)
-            monkeys.append(monkey)
+            monkeys.update({name: monkey})
     return monkeys
 
 
 def monkey_business(monkeys, rounds):
     for i in range(0, rounds):
         print(f'Round {i + 1}')
-        for monkey in monkeys:
+        for j in range(0, len(monkeys)):
+            monkey = monkeys[str(j)]
             monkey_inspected_items = monkey.inspect()
             for divisible, item in monkey_inspected_items:
                 toss_to = monkey.relationship[divisible]
-                catch_monkey = [m for m in monkeys if m.name == toss_to][0]
+                catch_monkey = monkeys[toss_to]
                 catch_monkey.catch(monkey.throw())
 
 
 def apply_mod(monkeys):
     super_mod = 1
-    for m in monkeys:
+    for _, m in monkeys.items():
         super_mod *= m.divide_test
-    for m in monkeys:
+    for _, m in monkeys.items():
         m.super_mod = super_mod
 
-# pt 1
+
 monkey_data = [d.strip() for d in get_data()]
+
+# pt 1
 monkeys = make_monkeys(monkey_data, True)
 monkey_business(monkeys, 20)
-monkeys.sort(key=lambda m: -m.inspect_count)
-total = monkeys[0].inspect_count * monkeys[1].inspect_count
+listed_monkeys = [m for _, m in monkeys.items()]
+listed_monkeys.sort(key=lambda m: -m.inspect_count)
+total = listed_monkeys[0].inspect_count * listed_monkeys[1].inspect_count
 print(f'part1: {total}')
 
 # pt 2
 monkeys = make_monkeys(monkey_data, False)
 apply_mod(monkeys)
 monkey_business(monkeys, 10000)
-monkeys.sort(key=lambda m: -m.inspect_count)
-total = monkeys[0].inspect_count * monkeys[1].inspect_count
+listed_monkeys = [m for _, m in monkeys.items()]
+listed_monkeys.sort(key=lambda m: -m.inspect_count)
+total = listed_monkeys[0].inspect_count * listed_monkeys[1].inspect_count
 print(f'part2: {total}')
