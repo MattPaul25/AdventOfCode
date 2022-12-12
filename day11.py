@@ -6,14 +6,14 @@ def get_data():
 
 class Monkey:
 
-    def __init__(self, name, items, operation, test, relationship, worry_reducer):
-        self.name = name
-        self.items = items
-        self.operation = operation
-        self.relationship = relationship
+    def __init__(self, **kwargs):
+        self.name = kwargs.get('name')
+        self.items = kwargs.get('items')
+        self.operation = kwargs.get('operation')
+        self.relationship = kwargs.get('relationship')
+        self.divide_test = kwargs.get('test')
+        self.worry_reducer = kwargs.get('worry_reducer')
         self.inspect_count = 0
-        self.divide_test = test
-        self.worry_reducer = worry_reducer
         self.super_mod = 1
         self.function = self.parse_operation()
 
@@ -56,7 +56,13 @@ def make_monkeys(monkey_data, worry_reducer=True):
             true_relationship = true_relationship[true_relationship.find('key ') + 4:]
             false_relationship = false_relationship[false_relationship.find('key ') + 4:]
             relationship = {True: true_relationship, False: false_relationship}
-            monkey = Monkey(name=name, items=clean_items, operation=operation, test=test, relationship=relationship, worry_reducer=worry_reducer)
+            monkey = Monkey(name=name,
+                            items=clean_items,
+                            operation=operation,
+                            test=test,
+                            relationship=relationship,
+                            worry_reducer=worry_reducer
+                            )
             monkeys.update({name: monkey})
     return monkeys
 
