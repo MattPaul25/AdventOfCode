@@ -6,30 +6,24 @@ def get_data():
 
 class Monkey:
 
-    def __init__(self, name, items, operation, test):
+    def __init__(self, name, items, operation, test, worry_reducer):
         self.name = name
         self.items = items
         self.operation = operation
         self.inspect_count = 0
         self.divide_test = test
+        self.worry_reducer = worry_reducer
         self.super_mod = 1
         self.function = self.parse_operation()
 
     def parse_operation(self):
-        if 'old * old' in self.operation:
-            return lambda x: x * x
-        elif '*' in self.operation:
-            number = self.operation[self.operation.find('* ') + 2:]
-            return lambda x: x * int(number)
-        elif '+' in self.operation:
-            number = self.operation[self.operation.find('+ ') + 2:]
-            return lambda x: x + int(number)
+        operation = self.operation[self.operation.find('= ')+2:]
+        return lambda old: eval(operation)
 
     def inspect(self, item):
-        # print(f'Monkey {self.name} inspects item {item}')
         worry_level = self.function(int(item))
+        worry_level = int(worry_level / 3) if self.worry_reducer else worry_level % self.super_mod
         divisible = worry_level % self.divide_test == 0
-        worry_level = worry_level % self.super_mod
         self.inspect_count += 1
         return divisible, worry_level
 
@@ -43,7 +37,7 @@ class Monkey:
         self.items.append(item)
 
 
-def make_monkeys(monkey_data):
+def make_monkeys(monkey_data, worry_reducer=True):
     monkeys, relationships = [], {}
     for idx, monkey_datum in enumerate(monkey_data):
         if 'Monkey' in monkey_datum:
@@ -53,7 +47,7 @@ def make_monkeys(monkey_data):
             operation = monkey_data[idx + 2]
             test = monkey_data[idx + 3].split(' ')
             test = int(test[len(test)-1])
-            monkey = Monkey(name=name, items=clean_items, operation=operation, test=test)
+            monkey = Monkey(name=name, items=clean_items, operation=operation, test=test, worry_reducer=worry_reducer)
             monkeys.append(monkey)
             true_relationship, false_relationship = monkey_data[idx + 4], monkey_data[idx + 5]
             true_relationship = true_relationship[true_relationship.find('key ') + 4:]
@@ -81,11 +75,18 @@ def apply_mod(monkeys):
     for m in monkeys:
         m.super_mod = super_mod
 
-
+# pt 1
 monkey_data = [d.strip() for d in get_data()]
-monkeys, relationships = make_monkeys(monkey_data)
+monkeys, relationships = make_monkeys(monkey_data, True)
+monkeys = monkey_business(monkeys, relationships, 20)
+monkeys.sort(key=lambda m: -m.inspect_count)
+total = monkeys[0].inspect_count * monkeys[1].inspect_count
+print(f'part1: {total}')
+
+# pt 2
+monkeys, relationships = make_monkeys(monkey_data, False)
 apply_mod(monkeys)
 monkeys = monkey_business(monkeys, relationships, 10000)
 monkeys.sort(key=lambda m: -m.inspect_count)
 total = monkeys[0].inspect_count * monkeys[1].inspect_count
-print(total)
+print(f'part2: {total}')
