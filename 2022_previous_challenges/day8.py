@@ -1,5 +1,3 @@
-sizes = range(0, 9)
-
 def get_data():
     with open("day8_input.txt", "r") as f:
         lines = f.readlines()
