@@ -1,25 +1,25 @@
-import time
 
 def get_data():
     with open("day14_input.txt", "r") as f:
         lines = f.readlines()
     return lines
 
+
 class Cave:
 
-    def __init__(self, cave_size, sand_hole):
+    def __init__(self, cave_size, sand_point):
         self.cave_size = cave_size
-        self.sand_point = sand_hole
-        self.matrix = self.create_matrix(self.cave_size[0], self.cave_size[1], sand_hole)
+        self.sand_point = sand_point
+        self.matrix = self.create_matrix()
         self.lowest_floor = 0
         self.sand_count = 0
 
-    def create_matrix(self, x, y, sand_hole):
+    def create_matrix(self):
         matrix = []
-        for i_y in range(0, y + 1):
+        for i_y in range(0, self.cave_size[1] + 1):
             horizontal_line = []
-            for i_x in range(0, x + 1):
-                if i_x == sand_hole[0] and i_y == 0:
+            for i_x in range(0, self.cave_size[0] + 1):
+                if i_x == self.sand_point[0] and i_y == 0:
                     horizontal_line.append('+')
                 else:
                     horizontal_line.append('.')
@@ -29,7 +29,6 @@ class Cave:
     def print_matrix(self):
         for line in self.matrix:
             print(''.join(line))
-
 
     def drop_sand(self):
         start_point_x, start_point_y = self.sand_point
@@ -56,7 +55,6 @@ class Cave:
                     falling = False
         return falling
 
-
     def add_rock(self, rock_formation):
         rock_points = rock_formation.split('->')
         for idx, rock in enumerate(rock_points):
@@ -82,17 +80,17 @@ class Cave:
             self.matrix[self.lowest_floor + 2][idx] = '#'
 
 
-def drop_sands(c, cycles=100):
+def drop_sands(cave, cycles=100):
     for i in range(0, cycles):
-        falling = c.drop_sand()
+        falling = cave.drop_sand()
         if falling:
             return i
     return i
 
 
-def draw_rocks(c, rock_data):
+def draw_rocks(cave, rock_data):
     for rock_formation in rock_data:
-        c.add_rock(rock_formation)
+        cave.add_rock(rock_formation)
 
 
 rd = [d.strip() for d in get_data()]
