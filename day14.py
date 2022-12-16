@@ -32,11 +32,11 @@ class Cave:
 
     def drop_sand(self):
         start_point_x, start_point_y = self.sand_point
-
         falling = self.matrix[start_point_y][start_point_x] in ['.', '+']
+        filled = not falling
         while falling:
             if start_point_y + 1 >= len(self.matrix) - 1:
-                return falling
+                return falling, filled
             if self.matrix[start_point_y + 1][start_point_x] == '.':
                 start_point_y += 1
                 continue
@@ -53,7 +53,7 @@ class Cave:
                     self.matrix[start_point_y][start_point_x] = 'o'
                     self.sand_count += 1
                     falling = False
-        return falling
+        return falling, filled
 
     def add_rock(self, rock_formation):
         rock_points = rock_formation.split('->')
@@ -80,12 +80,11 @@ class Cave:
             self.matrix[self.lowest_floor + 2][idx] = '#'
 
 
-def drop_sands(cave, cycles=100):
-    for i in range(0, cycles):
-        falling = cave.drop_sand()
-        if falling:
-            return i
-    return i
+def drop_sands(cave):
+    while True:
+        falling, filled = cave.drop_sand()
+        if falling or filled:
+            return
 
 
 def draw_rocks(cave, rock_data):
@@ -93,16 +92,19 @@ def draw_rocks(cave, rock_data):
         cave.add_rock(rock_formation)
 
 
+# ingest data
 rd = [d.strip() for d in get_data()]
-c = Cave((1000, 300), (500, 0))
+
+# part 1
+cave_dimensions = (700, 175)
+sand_location = (500, 0)
+c = Cave(cave_dimensions, sand_location)
 draw_rocks(c, rd)
-drop_sands(c, 10000)
-print(c.sand_count)
+drop_sands(c)
+print(f'sand qnty to fall into ether: {c.sand_count}')
 
 # part 2
-c = Cave((700, 170), (500, 0))
-draw_rocks(c, rd)
 c.make_floor()
-sand_count = drop_sands(c, 100000)
+drop_sands(c)
 c.print_matrix()
-print(c.sand_count)
+print(f'sand qnty to fill up with floor: {c.sand_count}')
